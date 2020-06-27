@@ -2,8 +2,6 @@ package com.alpha.task3.model;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class OfficeDescription {
 
@@ -11,9 +9,15 @@ public class OfficeDescription {
 
     private String title;
 
-    private BigDecimal lon;
+    private Double lon;
 
-    private BigDecimal lat;
+    private Double lat;
 
     private String address;
+
+    private Long distance;
+
+    public void setDistance(Double distance) {
+        this.distance = distance.longValue();
+    }
 }

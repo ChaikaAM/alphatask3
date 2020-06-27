@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.math.BigDecimal;
 
 @Entity(name = "branches")
 @Data
@@ -18,9 +17,9 @@ public class Branch {
 
     private String title;
 
-    private BigDecimal lon;
+    private Double lon;
 
-    private BigDecimal lat;
+    private Double lat;
 
     private String address;
 
