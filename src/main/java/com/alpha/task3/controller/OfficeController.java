@@ -19,9 +19,7 @@ public class OfficeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OfficeDescription> findById(@PathVariable Integer id) {
-        return officeService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(officeService.findById(id));
     }
 
     @GetMapping

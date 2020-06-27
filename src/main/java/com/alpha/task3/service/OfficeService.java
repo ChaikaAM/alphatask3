@@ -1,16 +1,17 @@
 package com.alpha.task3.service;
 
 import com.alpha.task3.domain.Branch;
+import com.alpha.task3.exception.RestApiException;
 import com.alpha.task3.mapper.BranchToOfficeDescriptionMapper;
 import com.alpha.task3.model.OfficeDescription;
 import com.alpha.task3.repository.OfficeRepository;
 import lombok.AllArgsConstructor;
 import org.apache.lucene.util.SloppyMath;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -23,8 +24,8 @@ public class OfficeService {
 
     private final BranchToOfficeDescriptionMapper branchToOfficeDescriptionMapper;
 
-    public Optional<OfficeDescription> findById(Integer id) {
-        return officeRepository.findById(id).map(branchToOfficeDescriptionMapper::map);
+    public OfficeDescription findById(Integer id) {
+        return officeRepository.findById(id).map(branchToOfficeDescriptionMapper::map).orElseThrow(() -> new RestApiException(HttpStatus.NOT_FOUND, "branch not found"));
     }
 
     public OfficeDescription findNearest(Double lat, Double lon) {
