@@ -1,16 +1,21 @@
 package com.alpha.task3.service;
 
 import com.alpha.task3.domain.Branch;
+import com.alpha.task3.domain.Queue;
 import com.alpha.task3.exception.RestApiException;
 import com.alpha.task3.mapper.BranchToOfficeDescriptionMapper;
 import com.alpha.task3.model.OfficeDescription;
 import com.alpha.task3.repository.OfficeRepository;
+import com.alpha.task3.repository.QueuesRepository;
 import lombok.AllArgsConstructor;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.lucene.util.SloppyMath;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -21,6 +26,7 @@ import java.util.stream.StreamSupport;
 public class OfficeService {
 
     private final OfficeRepository officeRepository;
+    private final QueuesRepository queuesRepository;
 
     private final BranchToOfficeDescriptionMapper branchToOfficeDescriptionMapper;
 
@@ -57,5 +63,26 @@ public class OfficeService {
         distance = Math.pow(distance, 2) + Math.pow(height, 2);
 
         return Math.sqrt(distance);
+    }
+
+    public OfficeDescription predict(Integer id, Integer dayOfWeek, Integer hourOfDay) {
+        OfficeDescription officeDescription = findById(id);
+        officeDescription.setDayOfWeek(dayOfWeek);
+        officeDescription.setHourOfDay(hourOfDay);
+        Collection<Queue> allByBranchesId = queuesRepository.findAllByBranchesId(id);
+        if (CollectionUtils.isEmpty(allByBranchesId)) {
+            return officeDescription;
+        }
+        SimpleRegression simpleRegression = new SimpleRegression();
+        allByBranchesId.stream().peek(it -> {
+            double waitedTime = (double) it.getEndTimeOfWait().getSeconds() - it.getStartTimeOfWait().getSeconds();
+            simpleRegression.addData(calculateHourInWeek(dayOfWeek, hourOfDay), waitedTime);
+        });
+        officeDescription.setPredicting(Double.valueOf(simpleRegression.predict(calculateHourInWeek(dayOfWeek, hourOfDay))).intValue());
+        return officeDescription;
+    }
+
+    private Double calculateHourInWeek(Integer dayOfWeek, Integer hourOfDay) {
+        return Double.valueOf(dayOfWeek * 24 + hourOfDay);
     }
 }

@@ -26,4 +26,11 @@ public class OfficeController {
     public ResponseEntity<OfficeDescription> findById(@RequestParam Double lat, @RequestParam Double lon) {
         return ResponseEntity.ok(officeService.findNearest(lat, lon));
     }
+
+    @GetMapping("/{id}/predict")
+    public ResponseEntity<OfficeDescription> predict(@PathVariable Integer id,
+                                                     @RequestParam Integer dayOfWeek,
+                                                     @RequestParam Integer hourOfDay) {
+        return ResponseEntity.ok(officeService.predict(id, dayOfWeek, hourOfDay));
+    }
 }
